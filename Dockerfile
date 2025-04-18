@@ -1,20 +1,4 @@
-# FROM node:18-alpine
-
-# WORKDIR /app
-
-# COPY package*.json ./
-# RUN npm install
-
-# COPY . .
-
-# RUN npm run build
-
-# CMD ["npm", "run", "start:prod"]
-
-
-
-# Stage 1: Build all apps
-FROM node:18-alpine as builder
+FROM node:18-alpine AS builder
 
 WORKDIR /app
 
@@ -24,23 +8,22 @@ COPY nest-cli.json ./
 COPY . .
 
 RUN npm install
+RUN npx prisma generate
 
-# Build both apps
-RUN npm run build api && npm run build ingestion
+RUN npm run build api-gateway && npm run build ingestion
 
-# Stage 2: Create separate runtime images
-
-# API App
-FROM node:18-alpine as api-runner
+# API Gateway App
+FROM node:18-alpine AS api-runner
 WORKDIR /app
-COPY --from=builder /app/dist/apps/api ./dist
+COPY --from=builder /app/dist/apps/api-gateway ./dist
 COPY package*.json ./
+COPY ./prisma prisma
 RUN npm install --omit=dev
 ENV NODE_ENV=production
-CMD ["node", "dist/main"]
+CMD ["npm", "run", "start:migrate:prod"]
 
 # Ingestion App
-FROM node:18-alpine as ingestion-runner
+FROM node:18-alpine AS ingestion-runner
 WORKDIR /app
 COPY --from=builder /app/dist/apps/ingestion ./dist
 COPY package*.json ./
