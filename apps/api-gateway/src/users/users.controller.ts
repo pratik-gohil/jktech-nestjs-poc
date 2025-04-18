@@ -25,12 +25,12 @@ import { RoleGuard } from '../auth/role/role.guard';
 
 @Controller('users')
 @ApiTags('users')
+@Roles(RoleType.ADMIN)
+@UseGuards(JwtAuthGuard, RoleGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
   @Post()
-  @Roles(RoleType.ADMIN)
-  @UseGuards(JwtAuthGuard, RoleGuard)
   @ApiBearerAuth()
   @ApiCreatedResponse({ type: UserEntity })
   async create(@Body() createUserDto: CreateUserDto) {
@@ -38,8 +38,6 @@ export class UsersController {
   }
 
   @Get()
-  @Roles(RoleType.ADMIN)
-  @UseGuards(JwtAuthGuard, RoleGuard)
   @ApiBearerAuth()
   @ApiOkResponse({ type: UserEntity, isArray: true })
   async findAll() {
@@ -48,8 +46,6 @@ export class UsersController {
   }
 
   @Get(':id')
-  @Roles(RoleType.ADMIN)
-  @UseGuards(JwtAuthGuard, RoleGuard)
   @ApiBearerAuth()
   @ApiOkResponse({ type: UserEntity })
   async findOne(@Param('id') id: string) {
@@ -57,8 +53,6 @@ export class UsersController {
   }
 
   @Patch(':id')
-  @Roles(RoleType.ADMIN)
-  @UseGuards(JwtAuthGuard, RoleGuard)
   @ApiBearerAuth()
   @ApiCreatedResponse({ type: UserEntity })
   async update(
@@ -69,8 +63,6 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @Roles(RoleType.ADMIN)
-  @UseGuards(JwtAuthGuard, RoleGuard)
   @ApiBearerAuth()
   @ApiOkResponse({ type: UserEntity })
   async remove(@Param('id') id: string) {
