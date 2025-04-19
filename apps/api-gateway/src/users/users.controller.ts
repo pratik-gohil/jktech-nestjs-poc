@@ -26,19 +26,18 @@ import { RoleGuard } from '../auth/role/role.guard';
 @Controller('users')
 @ApiTags('users')
 @Roles(RoleType.ADMIN)
+@ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RoleGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
   @Post()
-  @ApiBearerAuth()
   @ApiCreatedResponse({ type: UserEntity })
   async create(@Body() createUserDto: CreateUserDto) {
     return new UserEntity(await this.usersService.create(createUserDto));
   }
 
   @Get()
-  @ApiBearerAuth()
   @ApiOkResponse({ type: UserEntity, isArray: true })
   async findAll() {
     const users = await this.usersService.findAll();

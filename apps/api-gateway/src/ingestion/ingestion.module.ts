@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { IngestionService } from './ingestion.service';
 import { IngestionController } from './ingestion.controller';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { DocumentModule } from '../document/document.module';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Module({
   imports: [
@@ -15,8 +17,9 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
         },
       },
     ]),
+    DocumentModule
   ],
-  providers: [IngestionService],
+  providers: [IngestionService, PrismaService],
   controllers: [IngestionController]
 })
 export class IngestionModule { }

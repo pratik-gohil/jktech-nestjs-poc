@@ -30,7 +30,8 @@ model Document {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  user User @relation(fields: [uploadedBy], references: [id])
+  user      User       @relation(fields: [uploadedBy], references: [id])
+  Ingestion Ingestion?
 }
 
 model Role {
@@ -38,6 +39,24 @@ model Role {
   name      RoleType @unique
   users     User[]
   createdAt DateTime @default(now())
+}
+
+model Ingestion {
+  id         String @id @default(uuid()) @db.Uuid
+  documentId String @unique @db.Uuid
+  status     Status @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  document Document @relation(fields: [documentId], references: [id])
+}
+
+enum Status {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
 }
 
 enum RoleType {
