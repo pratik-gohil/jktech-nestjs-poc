@@ -1,10 +1,15 @@
 import { Injectable, UnprocessableEntityException } from '@nestjs/common';
 import { PrismaService } from 'apps/api-gateway/src/prisma/prisma.service';
 import { IngestionEntity } from './entity/ingestion.entity';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
 
 @Injectable()
 export class IngestionService {
-  constructor(private prisma: PrismaService) { }
+  constructor(
+    private prisma: PrismaService,
+    @InjectQueue('ingestion') private ingestionQueue: Queue
+  ) { }
 
   async addIngestion(documentId: string): Promise<IngestionEntity> {
     const existing = await this.prisma.ingestion.findUnique({ where: { documentId } });
@@ -16,6 +21,8 @@ export class IngestionService {
         status: "PROCESSING",
       }
     });
+
+    await this.ingestionQueue.add('process-document', { documentId });
 
     return ingestion;
   }
