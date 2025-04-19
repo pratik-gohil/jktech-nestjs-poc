@@ -1,73 +1,139 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+```md
+# NestJS Monorepo – Document Ingestion PoC
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+This repository demonstrates a Proof of Concept (PoC) application built using the **NestJS monorepo architecture**. It simulates a document processing pipeline with **RBAC**, **JWT authentication**, **microservices**, and **background processing** using **Bull**.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Features
 
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Installation
-
-```bash
-$ npm install
+- **NestJS Monorepo** using `@nrwl/nx` structure
+- **Docker & Docker Compose** for local development and deployment
+- **JWT Authentication** (Login, Register, Logout)
+- **Role-Based Access Control** (Admin, Editor, Viewer)
+- **Document Upload & Retrieval**
+- **Mock Ingestion Microservice**
+  - Redis transport
+  - Bull for background processing
+- **Swagger Documentation** for API exploration
 ```
 
-## Running the app
+## ⚙️ Setup Instructions
+
+### 1. Clone and Build
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+git clone git@github.com:pratik-gohil/jktech-nestjs-poc.git
+cd jktech-nestjs-poc
+docker-compose up --build
 ```
 
-## Test
+This will start the following:
+
+- API Gateway (NestJS REST app)
+- Ingestion Microservice (NestJS microservice using Redis transport)
+- PostgreSQL
+- Redis
+
+---
+
+## 🧪 Sample Login
+
+Use the following credentials to log in as admin:
+
+email: admin@example.com
+password: admin123
+
+Note: Admin user is seeded on startup
+
+---
+
+## 🔐 Authentication & Authorization
+
+- JWT Authentication using Passport.js
+- Role-based route guards using custom `@Roles()` decorator and guard
+- Roles supported:
+  - **Admin**: Manage users, documents, and ingestion
+  - **Editor**: Full document access and can trigger ingestion
+  - **Viewer**: Read-only access to documents and ingestion status
+
+---
+
+## 📄 Document Handling
+
+- Users can upload documents (secured by role)
+- Files are stored on the filesystem
+- Metadata is stored in PostgreSQL via Prisma ORM
+- Endpoints are protected via JWT + Role guards
+
+---
+
+## ⚙️ Ingestion Microservice
+
+- **Redis-based** NestJS microservice
+- Listens to document ingestion jobs from Bull queue
+- Simulates processing with delayed background task
+- Updates status in the database
+
+> Triggered by API Gateway using `ClientProxy` and `ingestionQueue.add(...)`
+
+---
+
+## 🧬 Background Processing with Bull
+
+- `BullModule` is configured with Redis
+- `@Processor` handles ingestion jobs
+- Once triggered, status is immediately set to `PROCESSING` and then later updated to `SUCCESS` or `FAILED`
+
+---
+
+## 🧪 Testing
+
+Run tests using:
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npm run test
 ```
 
-## Support
+Unit and E2E tests are included for core modules.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+---
 
-## Stay in touch
+## 🧾 Swagger Docs
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Available at:
 
-## License
+```
+http://localhost:3000/api
+```
 
-Nest is [MIT licensed](LICENSE).
+View all secured endpoints, models, and responses in Swagger UI.
+
+---
+
+## ✅ Roles Summary
+
+| Role    | Capabilities                                        |
+|---------|-----------------------------------------------------|
+| Admin   | Manage users, documents, ingestion                  |
+| Editor  | Create/Update/Delete documents, trigger ingestion   |
+| Viewer  | Read documents and ingestion status                 |
+
+---
+
+## Tech Stack
+
+- **NestJS** (Monorepo via Nx)
+- **Docker & Docker Compose**
+- **PostgreSQL + Prisma ORM**
+- **Redis + Bull (Queue)**
+- **Swagger**
+- **Passport.js (JWT Strategy)**
+
+---
+
+## Notes
+
+- All secrets/configs are managed via `.env` files
+- Prisma migrations can be created using `npx prisma migrate dev`
+- Files are saved inside the container at `uploads/`
+
+---
