@@ -13,6 +13,7 @@ services:
       - .env
     depends_on:
       - db
+      - redis
 
   ingestion:
     container_name: ingestion
@@ -24,6 +25,9 @@ services:
       - '5000:3000'
     env_file:
       - .env
+    depends_on:
+      - db
+      - redis
 
   db:
     container_name: postgres
@@ -47,6 +51,12 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+
+  redis:
+    container_name: redis
+    image: 'redis:alpine'
+    ports:
+      - '6379:6379'
 
 networks:
   prisma-network:

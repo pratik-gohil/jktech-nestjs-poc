@@ -1,19 +1,16 @@
 import { NestFactory } from '@nestjs/core';
 import { IngestionModule } from './ingestion.module';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 async function bootstrap() {
-  const app = await NestFactory.create(IngestionModule);
+  const app = await NestFactory.createMicroservice<MicroserviceOptions>(IngestionModule, {
+    transport: Transport.REDIS,
+    options: {
+      host: process.env.REDIS_HOST,
+      port: Number(process.env.REDIS_PORT),
+    },
+  });
 
-  const config = new DocumentBuilder()
-    .setTitle('Ingestion Service')
-    .setDescription('Nestjs POC - Ingestion Service')
-    .setVersion('0.1')
-    .build();
-
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
-
-  await app.listen(process.env.port ?? 3000);
+  await app.listen();
 }
 bootstrap();
