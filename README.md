@@ -21,8 +21,8 @@ This repository demonstrates a Proof of Concept (PoC) application built using th
 ### 1. Clone and Build
 
 ```bash
-git clone git@github.com:pratik-gohil/jktech-nestjs-poc.git
-cd jktech-nestjs-poc
+git clone git@github.com:pratik-gohil/nestjs-microservice-poc.git
+cd nestjs-microservice-poc
 docker-compose up --build
 ```
 
